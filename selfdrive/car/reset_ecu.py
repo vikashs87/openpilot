@@ -8,7 +8,7 @@ def reset_ecu(logcan, sendcan, bus=0, addr=0x7d0, timeout=0.1, debug=False):
 
   # $AE - DeviceControl Request SID
   # $FD - Gateway devices  # try $FE
-  # $40 - ECU reset
+  # $40 - ECU reset (bit 6)
   request = b"\xae\xfd\x40"
 
   query = IsoTpParallelQuery(sendcan, logcan, bus, [addr], [request], [b""], debug=debug)
