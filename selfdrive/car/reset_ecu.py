@@ -6,8 +6,10 @@ def reset_ecu(logcan, sendcan, bus=0, addr=0x7d0, timeout=0.1, debug=False):
   # ON GMLAN: This will only work if vehicle speed is 0 and engine is off
   cloudlog.warning(f"ecu reset {hex(addr)} ...")
 
-  # GMLAN CPID $FD - ECU reset
-  request = b"\xfd\x40"
+  # $AE - DeviceControl Request SID
+  # $FD - Gateway devices  # try $FE
+  # $40 - ECU reset
+  request = b"\xae\xfd\x40"
 
   query = IsoTpParallelQuery(sendcan, logcan, bus, [addr], [request], [b""], debug=debug)
   print(query.get_data(timeout))
