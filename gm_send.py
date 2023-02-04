@@ -15,12 +15,16 @@ packer = CANPacker("gm_global_a_powertrain_generated")
 DT_CTRL = 0.01  # 100Hz
 send_rate = DT_CTRL
 
+recv_rate = .5  # 2Hz
+
 idx = 0
 last_steer_time = 0
 last_param_read_time = 0
+last_can_recv_time = 0
 while True:
   now = time.perf_counter()
   if (now - last_param_read_time) > 1:  # 1 second
+    last_param_read_time = now
     try:
       with open('/data/send_rate', 'r') as f:
         send_rate = float(f.read().strip())
@@ -33,3 +37,12 @@ while True:
     addr, _, dat, bus = create_steering_control(packer, bus=0, apply_steer=0, idx=counter, lkas_active=False)
     panda.can_send(addr, dat, bus)
     idx += 1
+
+  if (now - last_can_recv_time) > recv_rate:
+    last_can_recv_time = now
+    msgs = panda.can_recv()
+    for address, _, dat, bus in msgs:
+      if address == 388 and bus == 0:
+        torque_delivered_status = (dat[0] >> 3) & 0x7
+        if torque_delivered_status == 3:
+          print("LKAS FAULT!")
