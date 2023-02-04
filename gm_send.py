@@ -12,7 +12,13 @@ panda = Panda()
 panda.set_safety_mode(Panda.SAFETY_ALLOUTPUT)
 packer = CANPacker("gm_global_a_powertrain_generated")
 
+DT_CTRL = 0.01
+
+idx = 0
 while True:
-  addr, _, dat, bus = create_steering_control(packer, bus=0, apply_steer=0, idx=idx, lkas_active=False)
+  counter = idx % 4
+  addr, _, dat, bus = create_steering_control(packer, bus=0, apply_steer=0, idx=counter, lkas_active=False)
   panda.can_send(addr, dat, bus)
-  time.sleep(1 / 100.)
+  idx += 1
+
+  time.sleep(DT_CTRL)
